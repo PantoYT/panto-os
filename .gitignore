@@ -1,0 +1,14 @@
+# Sensitive config — use config.example.js as template
+config.js
+
+# Python
+__pycache__/
+*.pyc
+
+# Honeypot logs
+../honeypot/
+honeypot.log
+
+# OS
+.DS_Store
+Thumbs.db

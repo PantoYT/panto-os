@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panto OS</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23E8962A'/><rect x='18' y='22' width='64' height='42' rx='5' fill='none' stroke='%23000' stroke-width='7'/><line x1='33' y1='64' x2='33' y2='80' stroke='%23000' stroke-width='7'/><line x1='67' y1='64' x2='67' y2='80' stroke='%23000' stroke-width='7'/><line x1='25' y1='80' x2='75' y2='80' stroke='%23000' stroke-width='7' stroke-linecap='round'/></svg>"/>
+<link rel="stylesheet" href="css/vars.css">
+<link rel="stylesheet" href="css/app.css?v=7">
+<script src="config.js" onerror="void 0"></script>
+</head>
+<body>
+
+<!-- OFFLINE BANNER -->
+<div id="offline-banner">
+  <div class="ob-dot"></div>
+  <span id="offline-msg">sysapi offline — retrying...</span>
+</div>
+
+<!-- SEARCH MODAL -->
+<div id="search-modal" onclick="if(event.target===this)closeSearch()">
+  <div class="search-box">
+    <div class="search-input-row">
+      <div class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+      <input class="search-input" id="search-input" placeholder="Search anything..." oninput="doSearch(this.value)" onkeydown="searchKey(event)" autocomplete="off">
+    </div>
+    <div class="search-results" id="search-results"></div>
+    <div class="search-hint">
+      <span><kbd>↑↓</kbd> navigate</span>
+      <span><kbd>Enter</kbd> open</span>
+      <span><kbd>Esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-icon">⚡</div>
+    <div class="confirm-title">Confirm Action</div>
+    <div class="confirm-msg" id="confirm-msg">Are you sure?</div>
+    <div class="confirm-btns">
+      <button class="btn btn-danger" id="confirm-yes">Confirm</button>
+      <button class="btn" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div id="settings-panel">
+  <div class="sp-hd">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span class="sp-title">Settings</span>
+    <button class="btn btn-xs" onclick="toggleSettings()">✕</button>
+  </div>
+  <div class="sp-body">
+    <div class="sp-sec">Accent Color</div>
+    <div class="sp-row"><label class="sp-lbl">Pick</label><input type="color" id="acc-picker" value="#e8962a" oninput="setAccent(this.value)"/></div>
+    <div class="sp-presets">
+      <div class="sp-preset-dot" style="background:#e8962a" onclick="setAccent('#e8962a')" title="Amber"></div>
+      <div class="sp-preset-dot" style="background:#00c4b0" onclick="setAccent('#00c4b0')" title="Cyan"></div>
+      <div class="sp-preset-dot" style="background:#a78bfa" onclick="setAccent('#a78bfa')" title="Purple"></div>
+      <div class="sp-preset-dot" style="background:#f87171" onclick="setAccent('#f87171')" title="Red"></div>
+      <div class="sp-preset-dot" style="background:#4ade80" onclick="setAccent('#4ade80')" title="Green"></div>
+      <div class="sp-preset-dot" style="background:#60a5fa" onclick="setAccent('#60a5fa')" title="Blue"></div>
+      <div class="sp-preset-dot" style="background:#f472b6" onclick="setAccent('#f472b6')" title="Pink"></div>
+    </div>
+    <div class="sp-sec">Display</div>
+    <div class="sp-row"><label class="sp-lbl">Overlay mode (transparent)</label><input type="checkbox" id="overlay-chk" onchange="toggleOverlayMode(this.checked)"/></div>
+    <div class="sp-sec">Panel Opacity</div>
+    <div class="sp-row"><label class="sp-lbl">Opacity</label><input type="range" id="opacity-sl" min="0.3" max="1" step="0.05" value="0.97" oninput="setPanelOpacity(+this.value)"/><span class="sp-val" id="opacity-val">97%</span></div>
+    <div class="sp-sec">Weather City</div>
+    <div class="sp-row"><label class="sp-lbl">City,CC</label><input class="input" id="wx-city-inp" placeholder="e.g. Warsaw,PL" oninput="setWxCity(this.value)" style="flex:1;font-size:11px;padding:5px 8px;"/></div>
+    <div class="sp-sec">Docker Interval</div>
+    <div class="sp-row"><label class="sp-lbl">Refresh</label><select class="sel" id="docker-int-sel" onchange="setDockerInt(+this.value)" style="flex:1;font-size:11px;padding:5px 8px;"><option value="30000">30s</option><option value="60000" selected>60s</option><option value="120000">2m</option><option value="300000">5m</option></select></div>
+    <div class="sp-sec">LED Hooks</div>
+    <div class="sp-row"><label class="sp-lbl">LED ON at startup</label><input type="checkbox" id="led-startup-chk" onchange="localStorage.setItem('panto-led-startup',this.checked?'1':'0')"/></div>
+    <div class="sp-sec">Log</div>
+    <div class="sp-row"><button class="btn btn-sm" onclick="copyLog()">Copy log to clipboard</button></div>
+    <div class="sp-sec">Wallpaper Engine</div>
+    <div style="font-size:11px;color:var(--t3);line-height:1.6;">Enable <em>Allow mouse input</em> in WE properties to interact.</div>
+  </div>
+</div>
+
+<!-- TILE MODE -->
+<div id="tile-mode">
+  <div class="tile-tb">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span class="tile-tb-title">TILE VIEW</span>
+    <div style="flex:1"></div>
+    <span style="font-size:12px;color:var(--t3);font-family:var(--fm);margin-right:12px;" id="tile-time"></span>
+    <button class="btn btn-sm btn-primary" onclick="closeTileMode()">✕ Close</button>
+  </div>
+  <div id="tile-grid">
+
+    <!-- TILE: System Stats -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">📊</span><span class="tc-title">SYSTEM</span><span class="tc-badge" id="tc-alert-badge"></span></div>
+      <div class="tc-body">
+        <div class="tc-stat-grid">
+          <div class="tc-stat-cell"><div class="tc-stat-val" id="tc-cpu">--%</div><div class="tc-stat-lbl">CPU</div></div>
+          <div class="tc-stat-cell"><div class="tc-stat-val" id="tc-ram">--%</div><div class="tc-stat-lbl">RAM</div></div>
+          <div class="tc-stat-cell"><div class="tc-stat-val" id="tc-temp">--°</div><div class="tc-stat-lbl">TEMP</div></div>
+          <div class="tc-stat-cell"><div class="tc-stat-val" id="tc-disk">--%</div><div class="tc-stat-lbl">DISK</div><div class="tc-stat-sub" id="tc-disk-free"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TILE: Clock -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">🕐</span><span class="tc-title">CLOCK</span></div>
+      <div class="tc-body">
+        <div class="tc-clock">
+          <div class="tc-clock-time" id="tc-clock-hms">00:00:00</div>
+          <div class="tc-clock-ms" id="tc-clock-ms">.000</div>
+          <div class="tc-clock-date" id="tc-clock-date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TILE: Weather -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon" id="tc-wx-icon-h">🌤</span><span class="tc-title">WEATHER</span></div>
+      <div class="tc-body">
+        <div class="tc-wx">
+          <div class="tc-wx-icon" id="tc-wx-icon">🌤</div>
+          <div class="tc-wx-temp" id="tc-wx-temp">--°</div>
+          <div class="tc-wx-desc" id="tc-wx-desc">loading...</div>
+          <div class="tc-wx-row">
+            <div class="tc-wx-item"><strong id="tc-wx-feel">--</strong>feels</div>
+            <div class="tc-wx-item"><strong id="tc-wx-wind">--</strong>wind</div>
+            <div class="tc-wx-item"><strong id="tc-wx-hum">--</strong>hum</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TILE: Docker -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">🐳</span><span class="tc-title">DOCKER</span><span class="tc-badge" id="tc-docker-count"></span></div>
+      <div class="tc-body">
+        <div class="tc-docker" id="tc-docker-list"><span style="font-size:10px;color:var(--t3)">Loading...</span></div>
+      </div>
+    </div>
+
+    <!-- TILE: Nyan -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">🌈</span><span class="tc-title">NYAN</span></div>
+      <div class="tc-nyan">
+        <canvas id="tc-nyan-stars"></canvas>
+        <img id="tc-nyan-gif" src="nyan.gif" alt="nyan" onerror="this.src='https://media.giphy.com/media/sIIhZliB2McAo/giphy.gif'"/>
+      </div>
+    </div>
+
+    <!-- TILE: Radar -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">◈</span><span class="tc-title">RADAR</span></div>
+      <div class="tc-radar"><canvas id="tc-radar-canvas"></canvas></div>
+    </div>
+
+    <!-- TILE: RSS -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">📰</span><span class="tc-title">HACKER NEWS</span></div>
+      <div class="tc-body" style="padding:8px;">
+        <div class="tc-rss" id="tc-rss-list"><span style="font-size:10px;color:var(--t3)">Loading...</span></div>
+      </div>
+    </div>
+
+    <!-- TILE: LED -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">💡</span><span class="tc-title">LED</span></div>
+      <div class="tc-body">
+        <div class="tc-led">
+          <div class="tc-led-label" id="tc-led-status">Lights — Off</div>
+          <div class="tc-led-btns">
+            <button class="tc-led-btn tc-led-on" onclick="runLed('on')">ON</button>
+            <button class="tc-led-btn tc-led-off" onclick="runLed('off')">OFF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TILE: Pomodoro -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">🍅</span><span class="tc-title">POMODORO</span><span class="tc-badge" id="tc-pomo-sessions-badge"></span></div>
+      <div class="tc-body">
+        <div class="tc-pomo">
+          <div class="tc-pomo-time" id="tc-pomo-time">25:00</div>
+          <div class="tc-pomo-label" id="tc-pomo-label">Focus</div>
+          <div class="tc-pomo-btns">
+            <button class="tc-pomo-btn" onclick="pomoToggle()" id="tc-pomo-start">▶ Start</button>
+            <button class="tc-pomo-btn" onclick="pomoReset()">↺</button>
+          </div>
+          <div class="tc-pomo-dots" id="tc-pomo-dots"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TILE: Notepad -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">📝</span><span class="tc-title">NOTEPAD</span><span class="tc-badge" id="tc-note-saved"></span></div>
+      <div class="tc-notepad">
+        <textarea class="tc-notepad-area" id="tc-notepad-area" placeholder="Notes..." oninput="tcNoteChanged()"></textarea>
+        <div class="tc-notepad-bar">
+          <span style="font-size:9px;color:var(--t3)" id="tc-note-chars">0 chars</span>
+          <div style="flex:1"></div>
+          <button class="btn btn-xs" onclick="saveNote()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TILE: Syslog -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">📋</span><span class="tc-title">SYSLOG</span></div>
+      <div class="tc-body" style="padding:0;">
+        <div class="tc-log" id="tc-syslog"></div>
+      </div>
+    </div>
+
+    <!-- TILE: Services -->
+    <div class="tc">
+      <div class="tc-h"><span class="tc-icon">🔗</span><span class="tc-title">SERVICES</span></div>
+      <div class="tc-body" style="padding:6px;">
+        <div class="tc-svc-grid" id="tc-svc-list"></div>
+      </div>
+    </div>
+
+  </div><!-- /tile-grid -->
+</div><!-- /tile-mode -->
+
+<!-- NODE DESIGNER -->
+<div id="node-mode">
+  <div id="node-topbar">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 9v6M9 6h6M21 15l-3-3-3 3"/></svg>
+    <span class="ntb-title">NODE DESIGNER</span>
+    <span class="ntb-hint">drag nodes from sidebar · click ports to connect</span>
+    <div style="flex:1"></div>
+    <button class="btn btn-sm btn-primary" onclick="runAllNodes()">▶ Run All</button>
+    <button class="btn btn-sm" id="node-save-btn" onclick="saveNodes()" style="margin-left:4px;">💾 Save</button>
+    <button class="btn btn-sm" onclick="clearAllNodes()" style="margin-left:4px;">Clear</button>
+    <button class="btn btn-sm" onclick="closeNodeMode()" style="margin-left:4px;">✕ Close</button>
+  </div>
+  <div id="node-body">
+    <div id="node-canvas-wrap" ondragover="event.preventDefault()" ondrop="nodeDropped(event)">
+      <canvas id="node-canvas"></canvas>
+    </div>
+    <div id="node-sidebar">
+      <div class="ns-label">⚡ Triggers</div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'cpu_high')" onclick="addNode('cpu_high')"><div class="nt-name">CPU High</div><div class="nt-desc">CPU exceeds threshold</div><span class="nt-cat cat-t">trigger</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'ram_high')" onclick="addNode('ram_high')"><div class="nt-name">RAM High</div><div class="nt-desc">RAM exceeds threshold</div><span class="nt-cat cat-t">trigger</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'temp_high')" onclick="addNode('temp_high')"><div class="nt-name">Temp High</div><div class="nt-desc">Temp exceeds threshold</div><span class="nt-cat cat-t">trigger</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'startup')" onclick="addNode('startup')"><div class="nt-name">On Startup</div><div class="nt-desc">Fires once on load</div><span class="nt-cat cat-t">trigger</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'schedule')" onclick="addNode('schedule')"><div class="nt-name">Schedule</div><div class="nt-desc">Every N minutes</div><span class="nt-cat cat-t">trigger</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'disk_high')" onclick="addNode('disk_high')"><div class="nt-name">Disk High</div><div class="nt-desc">Disk exceeds threshold</div><span class="nt-cat cat-t">trigger</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'ollama_down')" onclick="addNode('ollama_down')"><div class="nt-name">Ollama Down</div><div class="nt-desc">Ollama goes offline</div><span class="nt-cat cat-t">trigger</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'docker_down')" onclick="addNode('docker_down')"><div class="nt-name">Container Down</div><div class="nt-desc">Container stops</div><span class="nt-cat cat-t">trigger</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'time_of_day')" onclick="addNode('time_of_day')"><div class="nt-name">Time of Day</div><div class="nt-desc">At specific time</div><span class="nt-cat cat-t">trigger</span></div>
+      <div class="ns-label">▶ Actions</div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'led_on')" onclick="addNode('led_on')"><div class="nt-name">LED On</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'led_off')" onclick="addNode('led_off')"><div class="nt-name">LED Off</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'led_toggle')" onclick="addNode('led_toggle')"><div class="nt-name">LED Toggle</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'docker_restart')" onclick="addNode('docker_restart')"><div class="nt-name">Docker Restart</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'docker_stop')" onclick="addNode('docker_stop')"><div class="nt-name">Docker Stop</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'docker_start')" onclick="addNode('docker_start')"><div class="nt-name">Docker Start</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'kill_ollama')" onclick="addNode('kill_ollama')"><div class="nt-name">Kill Ollama</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'log_msg')" onclick="addNode('log_msg')"><div class="nt-name">Log Message</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'shutdown_pc')" onclick="addNode('shutdown_pc')"><div class="nt-name">Shutdown PC</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'open_url')" onclick="addNode('open_url')"><div class="nt-name">Open URL</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'pomodoro_start')" onclick="addNode('pomodoro_start')"><div class="nt-name">Start Pomodoro</div><span class="nt-cat cat-a">action</span></div>
+      <div class="nt" draggable="true" ondragstart="nodeDragStart(event,'send_webhook')" onclick="addNode('send_webhook')"><div class="nt-name">Webhook</div><span class="nt-cat cat-a">action</span></div>
+    </div>
+  </div>
+  <div id="node-log"></div>
+</div>
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div id="app">
+
+  <!-- TOPBAR -->
+  <header id="topbar">
+    <div class="tb-brand">
+      <div class="tb-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+    </div>
+    <div class="tb-divider"></div>
+    <nav class="tb-nav">
+      <button class="tb-tab active" id="tab-overview" onclick="showSection('overview')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </button>
+      <button class="tb-tab" id="tab-system" onclick="showSection('system')">
+        <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        System
+      </button>
+      <button class="tb-tab" id="tab-network" onclick="showSection('network')">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Network
+      </button>
+      <button class="tb-tab" id="tab-docker" onclick="showSection('docker')">
+        <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Docker
+      </button>
+      <button class="tb-tab" id="tab-chat" onclick="showSection('chat')">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        AI Chat
+      </button>
+      <button class="tb-tab" id="tab-planner" onclick="showSection('planner')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Planner
+      </button>
+      <button class="tb-tab" id="tab-fun" onclick="showSection('fun')">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Fun
+      </button>
+    </nav>
+    <div class="tb-spacer"></div>
+    <div class="tb-status">
+      <div class="tb-pill" id="tb-sys-pill">
+        <div class="tb-pill-dot ok" id="tb-conn"></div>
+        <span id="tb-cpu">CPU --</span>
+        <span class="tb-divider" style="height:10px;margin:0 2px;"></span>
+        <span id="tb-ram">RAM --</span>
+        <span id="tb-temp" style="margin-left:4px;"></span>
+      </div>
+      <div id="tb-alert-strip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span id="tb-al"></span>
+      </div>
+    </div>
+    <div class="tb-actions">
+      <button class="tb-icon-btn" onclick="openSearch()" title="Search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <span class="tb-tip">Search (Ctrl+K)</span>
+      </button>
+      <button class="tb-icon-btn" onclick="toggleTileMode()" title="Tile Mode">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span class="tb-tip">Tile Mode</span>
+      </button>
+      <button class="tb-icon-btn" onclick="toggleNodeMode()" title="Node Designer">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 9v6M9 6h6M21 15l-3-3-3 3"/></svg>
+        <span class="tb-tip">Node Designer</span>
+      </button>
+      <button class="tb-icon-btn" onclick="toggleSettings()">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="tb-tip">Settings</span>
+      </button>
+    </div>
+    <div class="tb-clock">
+      <span class="tb-clock-time" id="clk-time">00:00</span>
+      <span class="tb-clock-date" id="clk-date">---</span>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <button class="sb-btn active" id="sb-overview" onclick="showSection('overview')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span class="sb-tip">Overview</span>
+    </button>
+    <button class="sb-btn" id="sb-system" onclick="showSection('system')">
+      <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      <span class="sb-tip">System</span>
+    </button>
+    <button class="sb-btn" id="sb-network" onclick="showSection('network')">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <span class="sb-tip">Network</span>
+    </button>
+    <button class="sb-btn" id="sb-docker" onclick="showSection('docker')">
+      <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <span class="sb-tip">Docker</span>
+    </button>
+    <button class="sb-btn" id="sb-chat" onclick="showSection('chat')">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="sb-tip">AI Chat</span>
+    </button>
+    <button class="sb-btn" id="sb-planner" onclick="showSection('planner')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="sb-tip">Planner</span>
+    </button>
+    <button class="sb-btn" id="sb-fun" onclick="showSection('fun')">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span class="sb-tip">Fun</span>
+    </button>
+    <div class="sb-sep"></div>
+    <button class="sb-btn" onclick="window.open('https://control.panto-dev.com','_blank')">
+      <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+      <span class="sb-tip">Open WebUI</span>
+    </button>
+    <div class="sb-spacer"></div>
+    <div class="sb-sep"></div>
+    <button class="sb-btn" onclick="window.open('https://term.panto-dev.com','_blank')" title="Terminal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      <span class="sb-tip">Terminal</span>
+    </button>
+    <button class="sb-btn" onclick="sysAct('lock')" style="color:var(--t3)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span class="sb-tip">Lock</span>
+    </button>
+    <button class="sb-btn" onclick="confirmAct('Restart PC in 30s?','restart')" style="color:var(--wn)">
+      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      <span class="sb-tip">Restart</span>
+    </button>
+    <button class="sb-btn" onclick="confirmAct('Shutdown PC in 30s?','shutdown')" style="color:var(--er)">
+      <svg viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10"/></svg>
+      <span class="sb-tip">Shutdown</span>
+    </button>
+  </nav>
+
+  <!-- CONTENT -->
+  <main id="content">
+
+    <!-- ══ OVERVIEW ══ -->
+    <section class="section active" id="sec-overview">
+      <div class="sec-header">
+        <h1 class="sec-title">Overview</h1>
+        <span class="sec-sub" id="ov-sub">Panto OS v2</span>
+        <div class="sec-actions">
+          <button class="btn btn-sm" onclick="fetchStats()">
+            <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+      <!-- Hero metrics -->
+      <div class="card span-full" style="margin-bottom:16px;">
+        <div class="metrics">
+          <div class="metric-cell">
+            <div class="metric-val" id="ov-cpu">--%</div>
+            <div class="metric-lbl">CPU</div>
+            <div class="metric-sub" id="ov-cpu-sub">--</div>
+          </div>
+          <div class="metric-cell">
+            <div class="metric-val" id="ov-ram">--%</div>
+            <div class="metric-lbl">RAM</div>
+            <div class="metric-sub" id="ov-ram-sub">--</div>
+          </div>
+          <div class="metric-cell">
+            <div class="metric-val" id="ov-disk">--%</div>
+            <div class="metric-lbl">Disk</div>
+            <div class="metric-sub" id="ov-disk-sub">--</div>
+          </div>
+          <div class="metric-cell">
+            <div class="metric-val" id="ov-temp">--°</div>
+            <div class="metric-lbl">Temp</div>
+            <div class="metric-sub" id="ov-temp-sub">--</div>
+          </div>
+        </div>
+      </div>
+      <div class="g-main">
+        <!-- Left col -->
+        <div class="stack">
+          <!-- Sys Summary -->
+          <div class="card">
+            <div class="ch">
+              <div class="ch-icon ci-acc"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
+              <div class="ch-info"><div class="ch-title">System Resources</div><div class="ch-sub" id="ov-uptime-line">uptime --</div></div>
+              <div class="ch-actions">
+                <span class="badge b-ok" id="ov-ollama-badge">ollama --</span>
+              </div>
+            </div>
+            <div class="cb">
+              <div class="stat-grid">
+                <div class="stat"><div class="stat-l">Uptime</div><div class="stat-v" id="ov-ut" style="font-size:13px;color:var(--acc)">--</div></div>
+                <div class="stat"><div class="stat-l">Boot time</div><div class="stat-v" style="font-size:11px;" id="ov-boot">--</div></div>
+                <div class="stat"><div class="stat-l">RAM free</div><div class="stat-v" id="ov-ramfree">--</div></div>
+                <div class="stat"><div class="stat-l">Disk free</div><div class="stat-v" id="ov-diskfree">--</div></div>
+              </div>
+            </div>
+          </div>
+          <!-- Alerts -->
+          <div class="card">
+            <div class="ch">
+              <div class="ch-icon ci-wn"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+              <div class="ch-info"><div class="ch-title">Alerts</div></div>
+            </div>
+            <div class="cb"><div id="ov-alerts"></div></div>
+          </div>
+          <!-- Net I/O -->
+          <div class="card">
+            <div class="ch">
+              <div class="ch-icon ci-in"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+              <div class="ch-info"><div class="ch-title">Network I/O</div></div>
+            </div>
+            <div class="cb">
+              <div class="stat-grid">
+                <div class="stat"><div class="stat-l">Sent (MB)</div><div class="stat-v" id="net-up">--</div></div>
+                <div class="stat"><div class="stat-l">Recv (MB)</div><div class="stat-v" id="net-dn">--</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Right col -->
+        <div class="stack">
+          <!-- LED -->
+          <div class="card">
+            <div class="ch">
+              <div class="ch-icon" style="background:rgba(245,197,24,0.1);color:#f5c518;"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div>
+              <div class="ch-info"><div class="ch-title">LED Control</div><div class="ch-sub" id="led-label">Lights — Off</div></div>
+            </div>
+            <div class="cb">
+              <div class="led-panel" style="padding:12px 0;">
+                <div class="led-indicator" id="led-indicator"><div class="led-dot" id="led-dot"></div></div>
+                <div class="led-btns">
+                  <button class="led-btn led-on-btn" onclick="runLed('on')">ON</button>
+                  <button class="led-btn led-off-btn" onclick="runLed('off')">OFF</button>
+                </div>
+                <div class="led-feedback" id="led-feedback"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Weather -->
+          <div class="card">
+            <div class="ch">
+              <div class="ch-icon ci-acc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>
+              <div class="ch-info"><div class="ch-title">Weather</div><div class="ch-sub" id="wx-city-label">Loading...</div></div>
+            </div>
+            <div class="cb p0">
+              <div class="wx-big">
+                <div class="wx-icon-lg" id="wx-icon-left">🌤</div>
+                <div class="wx-temp" id="wt">--°</div>
+                <div class="wx-desc" id="wd2">loading...</div>
+              </div>
+              <div class="wx-meta">
+                <div class="wx-meta-cell"><span class="wx-meta-val" id="wf">--</span><span class="wx-meta-lbl">Feels</span></div>
+                <div class="wx-meta-cell"><span class="wx-meta-val" id="wh">--</span><span class="wx-meta-lbl">Humidity</span></div>
+                <div class="wx-meta-cell"><span class="wx-meta-val" id="ww">--</span><span class="wx-meta-lbl">Wind</span></div>
+                <div class="wx-meta-cell"><span class="wx-meta-val" id="wc">--</span><span class="wx-meta-lbl">Clouds</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SYSTEM ══ -->
+    <section class="section" id="sec-system">
+      <div class="sec-header">
+        <h1 class="sec-title">System</h1>
+        <span class="sec-sub">Resources · Processes · Log</span>
+        <div class="sec-actions">
+          <button class="btn btn-sm" onclick="fetchStats()">↻ Refresh</button>
+        </div>
+      </div>
+      <!-- Metric strip -->
+      <div class="card span-full" style="margin-bottom:16px;">
+        <div class="metrics">
+          <div class="metric-cell"><div class="metric-val" id="cv">--%</div><div class="metric-lbl">CPU</div></div>
+          <div class="metric-cell"><div class="metric-val" id="rv">--%</div><div class="metric-lbl">RAM</div><div class="metric-sub" id="ram-sub"></div></div>
+          <div class="metric-cell"><div class="metric-val" id="dv">--%</div><div class="metric-lbl">Disk</div><div class="metric-sub" id="disk-sub"></div></div>
+          <div class="metric-cell"><div class="metric-val" id="temp-v">--°</div><div class="metric-lbl">Temp</div></div>
+        </div>
+      </div>
+      <div class="g-main">
+        <div class="stack">
+          <!-- Rings + chart -->
+          <div class="card">
+            <div class="ch"><div class="ch-icon ci-acc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="ch-info"><div class="ch-title">Resources</div><div class="ch-sub">Live system metrics</div></div></div>
+            <div class="cb">
+              <div class="rings">
+                <div class="ring-wrap">
+                  <svg width="64" height="64" viewBox="0 0 52 52"><circle cx="26" cy="26" r="20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="5"/><circle id="rc" cx="26" cy="26" r="20" fill="none" stroke="var(--acc)" stroke-width="5" stroke-linecap="round" stroke-dasharray="125.7" stroke-dashoffset="125.7" transform="rotate(-90 26 26)" style="transition:stroke-dashoffset 1s"/></svg>
+                  <div class="ring-val" id="cv2">--%</div>
+                  <div class="ring-lbl">CPU</div>
+                </div>
+                <div class="ring-wrap">
+                  <svg width="64" height="64" viewBox="0 0 52 52"><circle cx="26" cy="26" r="20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="5"/><circle id="rr" cx="26" cy="26" r="20" fill="none" stroke="var(--acc-l)" stroke-width="5" stroke-linecap="round" stroke-dasharray="125.7" stroke-dashoffset="125.7" transform="rotate(-90 26 26)" style="transition:stroke-dashoffset 1s"/></svg>
+                  <div class="ring-val" id="rv2">--%</div>
+                  <div class="ring-lbl">RAM</div>
+                  <div class="ring-sub" id="ram-sub2"></div>
+                </div>
+                <div class="ring-wrap">
+                  <svg width="64" height="64" viewBox="0 0 52 52"><circle cx="26" cy="26" r="20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="5"/><circle id="rd" cx="26" cy="26" r="20" fill="none" stroke="var(--ok)" stroke-width="5" stroke-linecap="round" stroke-dasharray="125.7" stroke-dashoffset="125.7" transform="rotate(-90 26 26)" style="transition:stroke-dashoffset 1s"/></svg>
+                  <div class="ring-val" id="dv2">--%</div>
+                  <div class="ring-lbl">Disk</div>
+                  <div class="ring-sub" id="disk-sub2"></div>
+                </div>
+              </div>
+              <div class="chart-wrap"><div class="chart-lbl">CPU History</div><canvas id="cpu-chart" style="width:100%;height:36px;display:block;"></canvas></div>
+            </div>
+          </div>
+          <!-- Info grid -->
+          <div class="card">
+            <div class="ch"><div class="ch-icon ci-in"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="ch-info"><div class="ch-title">System Info</div></div><div class="ch-actions"><span class="badge" id="sys-ollama-badge" style="background:var(--ok-bg);color:var(--ok);border-color:var(--ok-bd)">ollama --</span></div></div>
+            <div class="cb">
+              <div class="stat-grid">
+                <div class="stat"><div class="stat-l">Uptime</div><div class="stat-v" style="font-size:13px;color:var(--acc);" id="ut-v">--</div></div>
+                <div class="stat"><div class="stat-l">Boot</div><div class="stat-v" style="font-size:11px;" id="boot-v">--</div></div>
+                <div class="stat"><div class="stat-l">RAM Free</div><div class="stat-v" id="ramf-v">--</div><div class="stat-s">GB</div></div>
+                <div class="stat"><div class="stat-l">Ollama</div><div class="stat-v" id="ol-v" style="color:var(--ok);">--</div></div>
+              </div>
+            </div>
+          </div>
+          <!-- Alerts -->
+          <div class="card">
+            <div class="ch"><div class="ch-icon ci-wn"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="ch-info"><div class="ch-title">Alerts</div></div></div>
+            <div class="cb"><div id="alerts-list"></div></div>
+          </div>
+        </div>
+        <div class="stack">
+          <!-- Processes -->
+          <div class="card">
+            <div class="ch"><div class="ch-icon ci-acc"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7"/></svg></div><div class="ch-info"><div class="ch-title">Top Processes</div></div></div>
+            <div class="cb scroll">
+              <div class="label" style="margin-bottom:6px;">By CPU</div>
+              <div class="proc-list" id="proc-cpu"></div>
+              <div class="label" style="margin:10px 0 6px;">By RAM</div>
+              <div class="proc-list" id="proc-ram"></div>
+            </div>
+          </div>
+          <!-- Syslog -->
+          <div class="card" style="flex:1.2">
+            <div class="ch">
+              <div class="ch-icon ci-pu"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <div class="ch-info"><div class="ch-title">System Log</div></div>
+              <div class="ch-actions"><button class="cib" onclick="copyLog()" title="Copy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>
+            </div>
+            <div class="cb p0"><div class="syslog" id="syslog"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ NETWORK ══ -->
+    <section class="section" id="sec-network">
+      <div class="sec-header"><h1 class="sec-title">Network</h1><span class="sec-sub">Services · Ping · Tailscale</span><div class="sec-actions"><button class="btn btn-sm" onclick="pingAll();fetchTS()">↻ Refresh</button></div></div>
+      <div class="g3">
+        <!-- Services -->
+        <div class="card span-full">
+          <div class="ch"><div class="ch-icon ci-acc"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="ch-info"><div class="ch-title">Services</div></div></div>
+          <div class="cb"><div class="svc-grid" id="svc-list"></div></div>
+        </div>
+        <!-- Ping -->
+        <div class="card">
+          <div class="ch"><div class="ch-icon ci-in"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="ch-info"><div class="ch-title">Ping Monitor</div></div></div>
+          <div class="cb"><div class="ping-monitor" id="ping-monitor-panel" style="padding:0;"><div id="ping-list"></div></div></div>
+        </div>
+        <!-- Tailscale -->
+        <div class="card" style="grid-column:span 2">
+          <div class="ch"><div class="ch-icon ci-ok"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="ch-info"><div class="ch-title">Tailscale</div></div><div class="ch-actions"><button class="cib" onclick="fetchTS()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button></div></div>
+          <div class="cb scroll" id="ts-list"><div style="color:var(--t3);font-size:12px;">Loading Tailscale devices...</div></div>
+        </div>
+        <!-- Honeypot Log -->
+        <div class="card">
+          <div class="ch"><div class="ch-icon" style="background:rgba(239,68,68,0.1);color:var(--er);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="ch-info"><div class="ch-title">Honeypot</div><div class="ch-sub" id="hp-sub">0 events</div></div><div class="ch-actions"><button class="cib" onclick="fetchHoneypot()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button></div></div>
+          <div class="cb scroll" id="hp-list" style="max-height:260px;padding:0;font-family:var(--fm);font-size:10px;"><div style="color:var(--t3);font-size:12px;padding:8px;">Loading...</div></div>
+        </div>
+        <!-- Discord Bots -->
+        <div class="card">
+          <div class="ch"><div class="ch-icon" style="background:rgba(88,101,242,0.15);color:#5865F2;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.055a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg></div><div class="ch-info"><div class="ch-title">Discord Bots</div><div class="ch-sub" id="bots-sub">checking...</div></div><div class="ch-actions"><button class="cib" onclick="fetchBots()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button></div></div>
+          <div class="cb" id="bots-list"><div style="color:var(--t3);font-size:12px;">Loading...</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ DOCKER ══ -->
+    <section class="section" id="sec-docker">
+      <div class="sec-header"><h1 class="sec-title">Docker</h1><span class="sec-sub">Container management</span><div class="sec-actions"><button class="btn btn-sm" onclick="fetchDocker()">↻ Refresh</button><button class="btn btn-sm btn-danger" onclick="confirmAct('Restart ALL containers?','restart-all')" style="margin-left:6px;">Restart All</button></div></div>
+      <div class="card">
+        <div class="ch"><div class="ch-icon ci-acc"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><div class="ch-info"><div class="ch-title">Containers</div></div></div>
+        <div class="cb scroll" id="docker-list"><div style="color:var(--t3);font-size:12px;">Fetching containers...</div></div>
+      </div>
+    </section>
+
+    <!-- ══ CHAT ══ -->
+    <section class="section" id="sec-chat" style="padding:0;height:calc(100vh - var(--topbar-h));flex-direction:column;overflow:hidden;">
+      <div class="card" style="flex:1;margin:0;border-radius:0;border-left:none;border-right:none;border-bottom:none;display:flex;flex-direction:column;">
+        <div class="ch" style="border-radius:0;">
+          <div class="ch-icon ci-acc"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="ch-info"><div class="ch-title">Ollama AI Chat</div></div>
+          <div class="ch-actions">
+            <button class="btn btn-xs" onclick="injectCtx()">+ Context</button>
+            <button class="btn btn-xs" onclick="clearChat()" style="margin-left:4px;">Clear</button>
+          </div>
+        </div>
+        <div class="chat-model-bar">
+          <select class="sel chat-model-sel" id="mdl">
+            <option>llama3.1:8b</option>
+            <option>phi3:mini</option>
+            <option>deepseek-r1:32b</option>
+            <option>mixtral:8x7b</option>
+            <option>qwen3-coder:30b-a3b-q4_K_M</option>
+          </select>
+        </div>
+        <div id="chat-msgs">
+          <div class="msg-wrap"><div class="msg-avatar ai">AI</div><div class="msg-bubble ai">Hey. What do you need?</div></div>
+        </div>
+        <div class="chat-input-bar">
+          <textarea id="chat-input" placeholder="Type a message… Enter to send" onkeydown="ckChat(event)" rows="1"></textarea>
+          <button id="chat-send" onclick="sendMsg()">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PLANNER ══ -->
+    <section class="section" id="sec-planner">
+      <div class="sec-header">
+        <h1 class="sec-title">Day Planner</h1>
+        <span class="sec-sub" id="planner-date-sub">Today</span>
+        <div class="sec-actions">
+          <button class="btn btn-sm" onclick="plannerPrevDay()">‹ Prev</button>
+          <button class="btn btn-sm btn-primary" onclick="plannerToday()" style="margin:0 4px;">Today</button>
+          <button class="btn btn-sm" onclick="plannerNextDay()">Next ›</button>
+          <button class="btn btn-sm" id="planner-week-btn" onclick="plannerToggleWeek()" style="margin-left:8px;">📆 Week</button>
+        </div>
+      </div>
+      <div class="g-main">
+        <!-- Left: timeline -->
+        <div class="stack" style="flex:1.4;">
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div class="ch" style="padding:12px 16px;">
+              <div class="ch-icon ci-acc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+              <div class="ch-info"><div class="ch-title">Timeline</div><div class="ch-sub">Click a slot to add a task</div></div>
+              <div class="ch-actions"><span class="badge b-ok" id="planner-busy-badge">0 tasks</span></div>
+            </div>
+            <div id="planner-timeline" style="overflow-y:auto;max-height:calc(100vh - 220px);padding:0 0 8px;"></div>
+          </div>
+        </div>
+        <!-- Right: task pool + stats -->
+        <div class="stack">
+          <div class="card">
+            <div class="ch">
+              <div class="ch-icon ci-pu"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+              <div class="ch-info"><div class="ch-title">Task Backlog</div></div>
+              <div class="ch-actions"><span class="badge" id="planner-backlog-count" style="background:var(--acc-bg);color:var(--acc);border-color:var(--acc)">0</span></div>
+            </div>
+            <div class="cb" style="padding-bottom:0;">
+              <div style="display:flex;gap:6px;margin-bottom:10px;">
+                <input class="input" id="planner-new-task" placeholder="New task..." style="flex:1;font-size:12px;padding:6px 10px;" onkeydown="if(event.key==='Enter')plannerAddBacklog()"/>
+                <button class="btn btn-sm btn-primary" onclick="plannerAddBacklog()">+</button>
+              </div>
+              <div id="planner-backlog" style="display:flex;flex-direction:column;gap:4px;max-height:220px;overflow-y:auto;"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch">
+              <div class="ch-icon ci-acc"><svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></div>
+              <div class="ch-info"><div class="ch-title">Rutyny</div><div class="ch-sub">Powtarzające się co tydzień</div></div>
+              <div class="ch-actions"><span class="badge" id="recur-count" style="background:var(--acc-bg);color:var(--acc);border-color:var(--acc)">0</span></div>
+            </div>
+            <div class="cb" style="padding-bottom:0;">
+              <div style="display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;">
+                <input class="input" id="recur-text" placeholder="Nazwa rutyny..." style="flex:1;min-width:0;font-size:12px;padding:5px 8px;"/>
+                <input class="input" id="recur-start" type="time" value="17:00" style="width:80px;font-size:12px;padding:5px 6px;"/>
+                <input class="input" id="recur-end" type="time" value="18:00" style="width:80px;font-size:12px;padding:5px 6px;"/>
+              </div>
+              <div style="display:flex;gap:4px;margin-bottom:8px;justify-content:space-between;align-items:center;">
+                <div style="display:flex;gap:4px;" id="recur-days">
+                  <button class="recur-day" data-d="1">Pn</button><button class="recur-day" data-d="2">Wt</button>
+                  <button class="recur-day" data-d="3">Śr</button><button class="recur-day" data-d="4">Cz</button>
+                  <button class="recur-day" data-d="5">Pt</button><button class="recur-day" data-d="6">Sb</button>
+                  <button class="recur-day" data-d="0">Nd</button>
+                </div>
+                <input type="color" id="recur-color" value="#a78bfa" style="width:32px;height:28px;padding:2px;border-radius:4px;border:1px solid var(--br);background:var(--bg3);cursor:pointer;flex-shrink:0;">
+                <button class="btn btn-sm btn-primary" onclick="recurAdd()" style="flex-shrink:0;">+ Dodaj</button>
+              </div>
+              <div id="recur-list" style="display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto;"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch">
+              <div class="ch-icon ci-ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="ch-info"><div class="ch-title">Day Summary</div></div>
+            </div>
+            <div class="cb">
+              <div class="stat-grid">
+                <div class="stat"><div class="stat-l">Scheduled</div><div class="stat-v" id="pls-scheduled">0</div></div>
+                <div class="stat"><div class="stat-l">Done</div><div class="stat-v" id="pls-done" style="color:var(--ok)">0</div></div>
+                <div class="stat"><div class="stat-l">Backlog</div><div class="stat-v" id="pls-backlog">0</div></div>
+                <div class="stat"><div class="stat-l">Progress</div><div class="stat-v" id="pls-pct">0%</div></div>
+              </div>
+              <div style="margin-top:10px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;">
+                <div id="pls-bar" style="height:100%;background:var(--ok);border-radius:3px;width:0%;transition:width 0.4s;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FUN ══ -->
+    <section class="section" id="sec-fun">
+      <div class="sec-header"><h1 class="sec-title">Fun Zone</h1><span class="sec-sub">Widgets · Gadgets · Vibes</span></div>
+      <div class="ga">
+
+        <!-- Clock -->
+        <div class="card">
+          <div class="ch"><div class="ch-icon ci-acc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="ch-info"><div class="ch-title">Clock</div></div></div>
+          <div class="cb p0"><div class="clock-display"><div class="clock-time" id="clock-full">00:00:00.000</div><div class="clock-date" id="clock-date"></div></div></div>
+        </div>
+
+        <!-- Pomodoro -->
+        <div class="card">
+          <div class="ch"><div class="ch-icon ci-er"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="ch-info"><div class="ch-title">Pomodoro</div><div class="ch-sub" id="pomo-sessions">Sessions: 0</div></div></div>
+          <div class="cb p0">
+            <div class="pomo-panel">
+              <div class="pomo-ring-wrap"><canvas id="pomo-ring" width="100" height="100"></canvas><div class="pomo-time-overlay"><div class="pomo-time" id="pomo-time">25:00</div><div class="pomo-phase" id="pomo-label">Focus</div></div></div>
+              <div class="pomo-btns">
+                <button class="btn btn-sm btn-primary" onclick="pomoToggle()" id="pomo-start">▶ Start</button>
+                <button class="btn btn-sm" onclick="pomoReset()">↺ Reset</button>
+              </div>
+              <div class="pomo-dots" id="pomo-dots"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notepad -->
+        <div class="card">
+          <div class="ch"><div class="ch-icon ci-pu"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="ch-info"><div class="ch-title">Notepad</div><div class="ch-sub" id="note-saved"></div></div><div class="ch-actions"><button class="cib" onclick="exportNote()" title="Export"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button><button class="cib" onclick="saveNote()" title="Save"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg></button></div></div>
+          <div class="cb p0">
+            <div class="notepad-wrap">
+              <textarea class="notepad-area" id="notepad-area" placeholder="Type your notes here..." oninput="noteChanged()"></textarea>
+              <div class="notepad-footer"><span class="notepad-chars" id="note-chars">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radar -->
+        <div class="card fun-tile" style="min-height:220px;">
+          <canvas id="radar-canvas"></canvas>
+          <div class="fun-overlay"><div class="fun-title">◈ RADAR</div></div>
+        </div>
+
+        <!-- Nyan Cat -->
+        <div class="card" style="min-height:220px;padding:0;overflow:hidden;">
+          <div class="nyan-wrap"><canvas id="nyan-stars"></canvas><img id="nyan-gif" src="nyan.gif" alt="nyan" onerror="this.src='https://media.giphy.com/media/sIIhZliB2McAo/giphy.gif'"/></div>
+        </div>
+
+        <!-- Matrix -->
+        <div class="card fun-tile" style="min-height:220px;">
+          <canvas id="matrix-canvas"></canvas>
+          <div class="fun-overlay"><div class="fun-title" style="color:#0f0;">◈ MATRIX</div></div>
+        </div>
+
+        <!-- Crypto -->
+        <div class="card">
+          <div class="ch"><div class="ch-icon ci-ok"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="ch-info"><div class="ch-title">Crypto</div></div><div class="ch-actions"><button class="cib" onclick="fetchCrypto()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button></div></div>
+          <div class="cb" id="crypto-panel"></div>
+        </div>
+
+        <!-- Hacker News -->
+        <div class="card" style="grid-column:span 2;">
+          <div class="ch"><div class="ch-icon ci-wn"><svg viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg></div><div class="ch-info"><div class="ch-title">Hacker News</div></div><div class="ch-actions"><button class="cib" onclick="fetchRSS()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button></div></div>
+          <div class="cb scroll" id="rss-list" style="max-height:320px;"></div>
+        </div>
+
+        <!-- LED (Fun) -->
+        <div class="card">
+          <div class="ch"><div class="ch-icon" style="background:rgba(245,197,24,0.1);color:#f5c518;"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div><div class="ch-info"><div class="ch-title">LED Control</div></div></div>
+          <div class="cb p0">
+            <div class="led-panel">
+              <div class="led-indicator" id="led-indicator-fun"><div class="led-dot" id="led-dot-fun"></div></div>
+              <div class="led-label" id="led-label-fun">Lights — Off</div>
+              <div class="led-btns">
+                <button class="led-btn led-on-btn" onclick="runLed('on')">ON</button>
+                <button class="led-btn led-off-btn" onclick="runLed('off')">OFF</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Uptime -->
+        <div class="card">
+          <div class="ch"><div class="ch-icon ci-ok"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="ch-info"><div class="ch-title">Uptime</div></div></div>
+          <div class="cb p0">
+            <div class="uptime-panel">
+              <div class="uptime-label">System Online</div>
+              <div class="uptime-val" id="uptime-big">--:--:--</div>
+              <div class="uptime-grid">
+                <div class="uptime-card"><div class="v" id="up-days">--</div><div class="l">days</div></div>
+                <div class="uptime-card"><div class="v" id="up-hours">--</div><div class="l">hours</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/app.js?v=11"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ── Surfaces ── */
+  --bg:        #07080f;
+  --surface:   #0d0f1e;
+  --raised:    #121426;
+  --overlay:   #181b30;
+  --input-bg:  #1c1f36;
+
+  /* ── Accent (themeable) ── */
+  --acc:       #e8962a;
+  --acc-l:     #f0ab4e;
+  --acc-d:     #b07020;
+  --acc-bg:    rgba(232,150,42,0.10);
+  --acc-bd:    rgba(232,150,42,0.22);
+  --acc-glow:  rgba(232,150,42,0.18);
+
+  /* ── Text ── */
+  --t1: #ede9e0;
+  --t2: rgba(237,233,224,0.62);
+  --t3: rgba(237,233,224,0.36);
+  --t4: rgba(237,233,224,0.18);
+
+  /* ── Borders ── */
+  --bd:    rgba(255,255,255,0.07);
+  --bd-h:  rgba(255,255,255,0.13);
+  --bd-a:  rgba(232,150,42,0.24);
+  --bd-f:  rgba(232,150,42,0.55);
+
+  /* ── Status ── */
+  --ok:  #22c55e;  --ok-bg:  rgba(34,197,94,0.10);   --ok-bd:  rgba(34,197,94,0.20);
+  --wn:  #f59e0b;  --wn-bg:  rgba(245,158,11,0.10);  --wn-bd:  rgba(245,158,11,0.20);
+  --er:  #ef4444;  --er-bg:  rgba(239,68,68,0.10);   --er-bd:  rgba(239,68,68,0.20);
+  --in:  #60a5fa;  --in-bg:  rgba(96,165,250,0.10);  --in-bd:  rgba(96,165,250,0.20);
+  --pu:  #a78bfa;  --pu-bg:  rgba(167,139,250,0.10);
+
+  /* ── Shadows ── */
+  --sh-xs: 0 1px 3px rgba(0,0,0,0.5);
+  --sh-sm: 0 2px 12px rgba(0,0,0,0.45);
+  --sh-md: 0 4px 28px rgba(0,0,0,0.55);
+  --sh-lg: 0 8px 56px rgba(0,0,0,0.65);
+
+  /* ── Layout ── */
+  --topbar-h:  52px;
+  --sidebar-w: 56px;
+
+  /* ── Typography ── */
+  --ff: 'Inter', system-ui, -apple-system, sans-serif;
+  --fm: 'JetBrains Mono', 'Cascadia Code', monospace;
+
+  /* ── Easing ── */
+  --ease: cubic-bezier(0.16,1,0.3,1);
+
+  /* ── Panel opacity (wallpaper engine) ── */
+  --pa: 0.97;
+}
