@@ -102,7 +102,7 @@ Edit the `LED_ON` / `LED_OFF` constants in `js/app.js` to change paths.
 ```
 panto-os/
 ├── index.html          # Main UI
-├── js/app.js           # All frontend logic
+├── js/app/             # Frontend logic, split by concern (core, system, widgets, planner, nodes…)
 ├── css/app.css         # Styles
 ├── css/vars.css        # CSS variables / theme
 ├── sysapi.py           # Python backend (Flask)

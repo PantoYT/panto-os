@@ -882,6 +882,14 @@
   </main>
 </div>
 
-<script src="js/app.js?v=11"></script>
+<!-- app.js split into ordered, section-aligned modules — load order matters -->
+<script src="js/app/01_core.js?v=12"></script>
+<script src="js/app/02_tile.js?v=12"></script>
+<script src="js/app/03_system.js?v=12"></script>
+<script src="js/app/04_widgets.js?v=12"></script>
+<script src="js/app/05_shell.js?v=12"></script>
+<script src="js/app/06_nodes.js?v=12"></script>
+<script src="js/app/07_planner.js?v=12"></script>
+<script src="js/app/08_init.js?v=12"></script>
 </body>
 </html>
