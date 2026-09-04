@@ -32,12 +32,14 @@ const svcs = [
   {name:'TubeYou',      url:'https://tubeyou.panto-dev.com',   d:'M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z'},
   {name:'Portfolio',    url:'https://me.panto-dev.com',        d:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'},
   {name:'Router',       url:'http://192.168.33.1',             d:'M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01'},
-  {name:'Nextcloud',    url:'https://dell-cloud.panto-dev.com',    d:'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM8 12l4-4 4 4M12 8v8'},
-  {name:'Jellyfin',     url:'https://dell-jellyfin.panto-dev.com', d:'M15 10l4.553-2.87A1 1 0 0 1 21 8v8a1 1 0 0 1-1.447.87L15 14v-4zM3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z'},
-  {name:'Grafana',      url:'https://dell-grafana.panto-dev.com',  d:'M18 20V10M12 20V4M6 20v-6'},
+  {name:'Nextcloud',    url:'https://hp-cloud.panto-dev.com',    d:'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM8 12l4-4 4 4M12 8v8'},
+  {name:'Jellyfin',     url:'https://hp-jellyfin.panto-dev.com', d:'M15 10l4.553-2.87A1 1 0 0 1 21 8v8a1 1 0 0 1-1.447.87L15 14v-4zM3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z'},
+  {name:'Grafana',      url:'https://hp-grafana.panto-dev.com',  d:'M18 20V10M12 20V4M6 20v-6'},
+  // Duplicati nie istnieje: brak kontenera i brak reguly w tunelu. Rekord dell-duplicati
+  // zostaje celowo — przemianowanie go na hp- dalo by link do nieistniejacej nazwy.
   {name:'Duplicati',    url:'https://dell-duplicati.panto-dev.com',d:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12'},
-  {name:'Dell Homer',   url:'https://dell-homer.panto-dev.com',    d:'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'},
-  {name:'Speedtest',    url:'https://dell-speedtest.panto-dev.com',d:'M12 2a10 10 0 0 1 10 10M12 6v6l4 2'},
+  {name:'HP Homer',     url:'https://hp-homer.panto-dev.com',    d:'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'},
+  {name:'Speedtest',    url:'https://hp-speedtest.panto-dev.com',d:'M12 2a10 10 0 0 1 10 10M12 6v6l4 2'},
 ];
 
 const pingTargets = [
