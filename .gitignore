@@ -12,3 +12,10 @@ honeypot.log
 # OS
 .DS_Store
 Thumbs.db
+
+# Local environment secrets (keep safe templates versioned)
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.sample
